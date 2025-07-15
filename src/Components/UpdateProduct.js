@@ -22,13 +22,12 @@ const UpdateProduct = () => {
     weight: "",
     colour: "",
     warranty: "",
-    heroImage: "",
+    heroImage: [],
   });
 
-  console.log(formData.heroImage);
-  
+  console.log("Got Image", formData.heroImage);
 
-  const [heroImage, setHeroImage] = useState("");
+  const [heroImage, setHeroImage] = useState([]);
 
   // Fetch product by ID on component mount
   useEffect(() => {
@@ -51,24 +50,33 @@ const UpdateProduct = () => {
     setFormData({ ...formData, [name]: newValue });
   };
 
-  function converToBase64HeroImage(e) {
-    const file = e.target.files[0];
-    if (!file) return;
+  function convertToBase64HeroImage(e) {
+    const files = Array.from(e.target.files);
     const maxSize = 200 * 1024;
 
-    if (file.size > maxSize) {
-      alert("File size must be less than or equal to 200 KB.");
-      setHeroImage("");
-      return;
-    }
-    var reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      setHeroImage(reader.result);
-    };
-    reader.onerror = (error) => {
-      console.log("Error : ", error);
-    };
+    const promises = files.map((file) => {
+      return new Promise((resolve, reject) => {
+        if (file.size > maxSize) {
+          reject(`${file.name} exceeds 200 KB.`);
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
+    });
+
+    Promise.all(promises)
+      .then((base64Images) => {
+        setHeroImage((prevImages) => [...prevImages, ...base64Images]); // Make sure heroImage is an array state
+      })
+      .catch((error) => {
+        alert(error);
+        console.log("Conversion Error:", error);
+        setHeroImage([]);
+      });
   }
 
   const handleSubmit = async (e) => {
@@ -77,7 +85,7 @@ const UpdateProduct = () => {
     // Add hero Image in the form Data section
     formData = {
       ...formData,
-      heroImage,
+      heroImage: heroImage,
     };
 
     try {
@@ -155,21 +163,24 @@ const UpdateProduct = () => {
             <label className="form-label d-block">Hero Image</label>
             <input
               type="file"
-              className="form-control"
-              name="heroImage"
               accept="image/*"
-              onChange={converToBase64HeroImage}
-              required
+              multiple
+              onChange={convertToBase64HeroImage}
             />
-            {formData.heroImage && (
-              <img
-                src={formData.heroImage}
-                alt="Hero Image"
-                className="mt-2 rounded shadow-sm border"
-                height={100}
-                width={100}
-                style={{ objectFit: "cover" }}
-              />
+            {formData.heroImage?.length > 0 && (
+              <div className="mt-2 flex gap-2 flex-wrap">
+                {formData.heroImage.map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    alt={`Hero ${index}`}
+                    className="rounded shadow-sm border m-1"
+                    height={100}
+                    width={100}
+                    style={{ objectFit: "cover" }}
+                  />
+                ))}
+              </div>
             )}
           </div>
         </div>

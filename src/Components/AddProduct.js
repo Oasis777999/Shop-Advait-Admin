@@ -19,49 +19,61 @@ const AddProduct = () => {
     weight: "",
     colour: "",
     warranty: "",
-    heroImage:""
+    heroImage: [],
   });
-  
-  const [ heroImage, setHeroImage ] = useState("");
+
+  const [heroImage, setHeroImage] = useState([]);
+
+  console.log(heroImage);
+  console.log(formData);
+
   const navigate = useNavigate();
 
-  
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     const newValue = type === "checkbox" ? checked : value;
     setFormData({ ...formData, [name]: newValue });
   };
 
-  function converToBase64HeroImage(e) {
-    const file = e.target.files[0];
-    if (!file) return;
+  function convertToBase64HeroImage(e) {
+    const files = Array.from(e.target.files);
     const maxSize = 200 * 1024;
 
-    if (file.size > maxSize) {
-      alert("File size must be less than or equal to 200 KB.");
-      setHeroImage("");
-      return;
-    }
-    var reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      setHeroImage(reader.result);
-    };
-    reader.onerror = (error) => {
-      console.log("Error : ", error);
-    };
+    const promises = files.map((file) => {
+      return new Promise((resolve, reject) => {
+        if (file.size > maxSize) {
+          reject(`${file.name} exceeds 200 KB.`);
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
+    });
+
+    Promise.all(promises)
+      .then((base64Images) => {
+        setHeroImage((prevImages) => [...prevImages, ...base64Images]); // Make sure heroImage is an array state
+      })
+      .catch((error) => {
+        alert(error);
+        console.log("Conversion Error:", error);
+        setHeroImage([]);
+      });
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Submitting:", formData);
 
-    try {      
+    try {
       // Add hero Image in the form Data section
       formData = {
         ...formData,
-        heroImage
-      }
+        heroImage: heroImage,
+      };
 
       const res = await api.post("/api/product/add", formData);
       alert("Product added successfully");
@@ -83,6 +95,7 @@ const AddProduct = () => {
         weight: "",
         colour: "",
         warranty: "",
+        heroImage: [],
       });
     } catch (err) {
       console.error("Add product error:", err.response?.data || err.message);
@@ -155,21 +168,24 @@ const AddProduct = () => {
             <label className="form-label d-block">Hero Image</label>
             <input
               type="file"
-              className="form-control"
-              name="heroImage"
               accept="image/*"
-              onChange={converToBase64HeroImage}
-              required
+              multiple
+              onChange={convertToBase64HeroImage}
             />
-            {heroImage && (
-              <img
-                src={heroImage}
-                alt="Hero Image"
-                className="mt-2 rounded shadow-sm border"
-                height={100}
-                width={100}
-                style={{ objectFit: "cover" }}
-              />
+            {heroImage?.length > 0 && (
+              <div className="mt-2 flex gap-2 flex-wrap">
+                {heroImage.map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    alt={`Hero ${index}`}
+                    className="rounded shadow-sm border"
+                    height={100}
+                    width={100}
+                    style={{ objectFit: "cover" }}
+                  />
+                ))}
+              </div>
             )}
           </div>
         </div>

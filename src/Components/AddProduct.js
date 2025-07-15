@@ -20,12 +20,10 @@ const AddProduct = () => {
     colour: "",
     warranty: "",
     heroImage: [],
+    boxContent: [],
   });
 
   const [heroImage, setHeroImage] = useState([]);
-
-  console.log(heroImage);
-  console.log(formData);
 
   const navigate = useNavigate();
 
@@ -33,6 +31,24 @@ const AddProduct = () => {
     const { name, value, type, checked } = e.target;
     const newValue = type === "checkbox" ? checked : value;
     setFormData({ ...formData, [name]: newValue });
+  };
+
+  const handleBoxContentChange = (e) => {
+    const { value, checked } = e.target;
+
+    setFormData((prev) => {
+      if (checked) {
+        return {
+          ...prev,
+          boxContent: [...prev.boxContent, value],
+        };
+      } else {
+        return {
+          ...prev,
+          boxContent: prev.boxContent.filter((item) => item !== value),
+        };
+      }
+    });
   };
 
   function convertToBase64HeroImage(e) {
@@ -70,12 +86,12 @@ const AddProduct = () => {
 
     try {
       // Add hero Image in the form Data section
-      formData = {
+     const submitData = {
         ...formData,
-        heroImage: heroImage,
+        heroImage,
       };
 
-      const res = await api.post("/api/product/add", formData);
+      const res = await api.post("/api/product/add", submitData);
       alert("Product added successfully");
       navigate("/productlist"); // or wherever your list page is
 
@@ -161,6 +177,29 @@ const AddProduct = () => {
                 onChange={handleChange}
               />
               <label className="form-check-label">Active</label>
+            </div>
+          </div>
+
+          <div className="col-md-12 mb-3">
+            <label className="form-label d-block">Box Content</label>
+            <div className="row">
+              {["Device", "SIM Card", "Cable", "User Manual", "Adaptor"].map(
+                (item) => (
+                  <div className="form-check col-md-2" key={item}>
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id={`box-${item}`}
+                      value={item}
+                      checked={formData.boxContent.includes(item)}
+                      onChange={handleBoxContentChange}
+                    />
+                    <label className="form-check-label" htmlFor={`box-${item}`}>
+                      {item}
+                    </label>
+                  </div>
+                )
+              )}
             </div>
           </div>
 

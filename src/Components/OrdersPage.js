@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../apis/api";
-import {generateInvoicePDF} from "./InvoicePage";
+import { generateInvoicePDF } from "./InvoicePage";
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -46,17 +46,19 @@ const OrdersPage = () => {
                 <tr key={order._id}>
                   <td>{idx + 1}</td>
                   <td>{order._id}</td>
-                  <td>{order.product.name}</td>
+                  <td>{order.product.map((item) => item.name).join(", ")}</td>
                   <td>
                     {order.billingData?.name} <br />
                     <small>{order.billingData?.phone}</small>
                   </td>
                   <td>{order.paymentMethod}</td>
                   <td>
-                    <span className="badge bg-success">{order.status || "Placed"}</span>
+                    <span className="badge bg-success">
+                      {order.status || "Placed"}
+                    </span>
                   </td>
                   <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                  <td>{order.product.sellPrice}</td>
+                  <td>{order.sellTotalPrice}  ₹</td>
                   <td>
                     <button
                       className="btn btn-sm btn-outline-dark"

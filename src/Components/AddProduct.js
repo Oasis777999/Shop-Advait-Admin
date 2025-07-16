@@ -86,7 +86,7 @@ const AddProduct = () => {
 
     try {
       // Add hero Image in the form Data section
-     const submitData = {
+      const submitData = {
         ...formData,
         heroImage,
       };
@@ -130,11 +130,8 @@ const AddProduct = () => {
             ["brand", "Brand"],
             ["sku", "SKU"],
             ["shortDesc", "Short Description"],
-            ["sellPrice", "Selling Price"],
-            ["costPrice", "Cost Price"],
             ["sequence", "Sequence"],
             ["colour", "Colour"],
-            ["warranty", "Warranty"],
           ].map(([key, label]) => (
             <div className="col-md-6 mb-3" key={key}>
               <label className="form-label">{label}</label>
@@ -149,6 +146,9 @@ const AddProduct = () => {
           ))}
 
           {[
+            ["sellPrice", "Selling Price"],
+            ["costPrice", "Cost Price"],
+            ["warranty", "Warranty"],
             ["length", "Length (cm)"],
             ["breadth", "Breadth (cm)"],
             ["height", "Height (cm)"],

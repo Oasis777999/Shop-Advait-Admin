@@ -25,8 +25,6 @@ const UpdateProduct = () => {
     heroImage: [],
   });
 
-  console.log("Got Image", formData.heroImage);
-
   const [heroImage, setHeroImage] = useState([]);
 
   // Fetch product by ID on component mount
@@ -95,6 +93,30 @@ const UpdateProduct = () => {
     } catch (err) {
       console.error("Update product error:", err);
       alert("Failed to update product");
+    }
+  };
+
+  const handleRemoveImage = async (indexToRemove) => {
+    const imageToDelete = formData.heroImage[indexToRemove]; // Get the image URL at the given index
+    console.log(imageToDelete); // Debug log (optional)
+    console.log(id);
+
+    try {
+      const res = await api.patch(
+        `/api/product/delete-image/${id}`, // Calls the backend API with the product ID
+        { imageToDelete } // Sends image name/URL to delete
+      );
+
+      // Update the local component state with the updated image array returned from backend
+      setFormData((prev) => ({
+        ...prev,
+        heroImage: res.data.heroImage,
+      }));
+
+      alert("Image removed successfully");
+    } catch (error) {
+      console.error("Error deleting image:", error); // Logs error for debugging
+      alert("Failed to remove image");
     }
   };
 
@@ -168,17 +190,41 @@ const UpdateProduct = () => {
               onChange={convertToBase64HeroImage}
             />
             {formData.heroImage?.length > 0 && (
-              <div className="mt-2 flex gap-2 flex-wrap">
+              <div className="mt-2 d-flex flex-wrap gap-2">
                 {formData.heroImage.map((img, index) => (
-                  <img
+                  <div
                     key={index}
-                    src={img}
-                    alt={`Hero ${index}`}
-                    className="rounded shadow-sm border m-1"
-                    height={100}
-                    width={100}
-                    style={{ objectFit: "cover" }}
-                  />
+                    className="position-relative border rounded shadow-sm me-2 mb-2"
+                    style={{ width: 100, height: 100, overflow: "hidden" }}
+                  >
+                    {/* Delete Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(index)}
+                      className="position-absolute top-0 end-0 bg-danger text-white rounded-circle d-flex align-items-center justify-content-center shadow"
+                      style={{
+                        width: "20px",
+                        height: "20px",
+                        fontSize: "12px",
+                        cursor: "pointer",
+                        zIndex: 2,
+                      }}
+                    >
+                      ×
+                    </button>
+
+                    {/* Image */}
+                    <img
+                      src={img}
+                      alt={`Hero ${index}`}
+                      style={{
+                        objectFit: "cover",
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: "0.25rem",
+                      }}
+                    />
+                  </div>
                 ))}
               </div>
             )}

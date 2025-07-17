@@ -25,7 +25,8 @@ const UpdateProduct = () => {
     heroImage: [],
   });
 
-  const [heroImage, setHeroImage] = useState([]);
+  let [heroImage, setHeroImage] = useState([]);
+  console.log(heroImage);
 
   // Fetch product by ID on component mount
   useEffect(() => {
@@ -120,6 +121,11 @@ const UpdateProduct = () => {
     }
   };
 
+  // Remove image from new images array
+  const removeFromHeroImage = (index) => {
+    setHeroImage((prev) => prev.filter((_, i) => i !== index));
+  };
+
   return (
     <div className="container mt-4">
       <h3>Update Product</h3>
@@ -181,53 +187,95 @@ const UpdateProduct = () => {
             </div>
           </div>
 
-          <div className="col-md-3 mb-3">
+          <div className="col-md-12 mb-3">
             <label className="form-label d-block">Hero Image</label>
             <input
               type="file"
               accept="image/*"
               multiple
               onChange={convertToBase64HeroImage}
+              className="form-control"
             />
-            {formData.heroImage?.length > 0 && (
-              <div className="mt-2 d-flex flex-wrap gap-2">
-                {formData.heroImage.map((img, index) => (
-                  <div
-                    key={index}
-                    className="position-relative border rounded shadow-sm me-2 mb-2"
-                    style={{ width: 100, height: 100, overflow: "hidden" }}
-                  >
-                    {/* Delete Button */}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage(index)}
-                      className="position-absolute top-0 end-0 bg-danger text-white rounded-circle d-flex align-items-center justify-content-center shadow"
-                      style={{
-                        width: "20px",
-                        height: "20px",
-                        fontSize: "12px",
-                        cursor: "pointer",
-                        zIndex: 2,
-                      }}
-                    >
-                      ×
-                    </button>
+            <div className="row mt-4">
+              <div className="col-md-6">
+                <h5>Uploaded Images</h5>
+                {formData.heroImage?.length > 0 && (
+                  <div className="mt-2 d-flex flex-wrap gap-2">
+                    {formData.heroImage.map((img, index) => (
+                      <div
+                        key={index}
+                        className="position-relative border rounded shadow-sm me-2 mb-2"
+                        style={{ width: 100, height: 100, overflow: "hidden" }}
+                      >
+                        {/* Delete Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(index)}
+                          className="position-absolute top-0 end-0 bg-danger text-white rounded-circle d-flex align-items-center justify-content-center shadow"
+                          style={{
+                            width: "20px",
+                            height: "20px",
+                            fontSize: "12px",
+                            cursor: "pointer",
+                            zIndex: 2,
+                          }}
+                        >
+                          ×
+                        </button>
 
-                    {/* Image */}
-                    <img
-                      src={img}
-                      alt={`Hero ${index}`}
-                      style={{
-                        objectFit: "cover",
-                        width: "100%",
-                        height: "100%",
-                        borderRadius: "0.25rem",
-                      }}
-                    />
+                        {/* Image */}
+                        <img
+                          src={img}
+                          alt={`Hero ${index}`}
+                          style={{
+                            objectFit: "cover",
+                            width: "100%",
+                            height: "100%",
+                            borderRadius: "0.25rem",
+                          }}
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
-            )}
+
+              <div className="col-md-6">
+                <h5>Newly Added Images</h5>
+                <div className="d-flex flex-wrap gap-2">
+                  {heroImage?.map((img, index) => (
+                    <div
+                      key={index}
+                      className="position-relative border rounded"
+                      style={{ width: 100, height: 100, overflow: "hidden" }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => removeFromHeroImage(index)}
+                        className="position-absolute top-0 end-0 bg-danger text-white rounded-circle"
+                        style={{
+                          width: "20px",
+                          height: "20px",
+                          fontSize: "12px",
+                          zIndex: 2,
+                        }}
+                      >
+                        ×
+                      </button>
+                      <img
+                        src={img}
+                        alt="New"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

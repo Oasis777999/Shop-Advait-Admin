@@ -19,6 +19,40 @@ const OrdersPage = () => {
     fetchOrders();
   }, []);
 
+const handleStatusChange = async (id, newStatus) => {
+  try {
+    await api.put(`/api/order/update-status/${id}`, { status: newStatus });
+    alert("order status updated")
+
+    setOrders((prev) =>
+      prev.map((order) =>
+        order._id === id ? { ...order, status: newStatus } : order
+      )
+    );
+  } catch (error) {
+    console.error("Status update failed", error);
+    alert("Status update failed");
+  }
+};
+
+
+  const statusColor = (status) => {
+    switch (status) {
+      case "New Order":
+        return "secondary";
+      case "In-Process":
+        return "warning";
+      case "Out for Delivery":
+        return "info";
+      case "Delivered":
+        return "success";
+      case "Cancelled":
+        return "danger";
+      default:
+        return "primary";
+    }
+  };
+
   return (
     <div className="container mt-4">
       <h3 className="mb-4">All Orders</h3>
@@ -53,12 +87,24 @@ const OrdersPage = () => {
                   </td>
                   <td>{order.paymentMethod}</td>
                   <td>
-                    <span className="badge bg-success">
-                      {order.status || "Placed"}
-                    </span>
+                    <select
+                      className={`form-select form-select-sm border border-${statusColor(
+                        order.status
+                      )}`}
+                      value={order.status}
+                      onChange={(e) =>
+                        handleStatusChange(order._id, e.target.value)
+                      }
+                    >
+                      <option value="New Order">New Order</option>
+                      <option value="In-Process">In-Process</option>
+                      <option value="Out for Delivery">Out for Delivery</option>
+                      <option value="Delivered">Delivered</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
                   </td>
                   <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                  <td>{order.sellTotalPrice}  ₹</td>
+                  <td>{order.sellTotalPrice} ₹</td>
                   <td>
                     <button
                       className="btn btn-sm btn-outline-dark"

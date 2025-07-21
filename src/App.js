@@ -7,6 +7,8 @@ import Sidebar from "./Components/Sidebar";
 import ProductList from "./Components/ProductList";
 import React from "react";
 import OrdersPage from "./Components/OrdersPage";
+import StatusSalesChart from "./Components/Dashboard";
+import Dashboard from "./Components/Dashboard";
 
 // Wrapper to handle Sidebar logic
 const Layout = ({ children }) => {
@@ -32,6 +34,7 @@ function App() {
           <Route path="/login" element={<Login />} />
 
           {/* Admin */}
+          <Route path="/" element={<Dashboard/>}></Route>
           <Route path="/addproduct" element={<AddProduct />} />
           <Route path="/productlist" element={<ProductList />} />
           <Route path="/orderlist" element={<OrdersPage/>}></Route>

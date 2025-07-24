@@ -26,7 +26,7 @@ const Layout = ({ children }) => {
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter >
       <Layout>
         <Routes>
           {/* Auth */}
